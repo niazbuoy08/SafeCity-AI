@@ -1,0 +1,67 @@
+version: "3.9"
+
+services:
+  mongo:
+    image: mongo:7
+    container_name: safecity-mongo
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+
+  ai-service:
+    build: ./ai-service
+    container_name: safecity-ai-service
+    restart: unless-stopped
+    environment:
+      AI_PROVIDER: demo
+      CONFIDENCE_IGNORE_BELOW: 60
+      CONFIDENCE_HIGH_ABOVE: 80
+      PORT: 8000
+    ports:
+      - "8000:8000"
+
+  backend:
+    build: ./backend
+    container_name: safecity-backend
+    restart: unless-stopped
+    depends_on:
+      - mongo
+      - ai-service
+    environment:
+      PORT: 4000
+      NODE_ENV: production
+      MONGO_URI: mongodb://mongo:27017/safecity
+      JWT_SECRET: change-this-to-a-long-random-secret
+      AI_SERVICE_URL: http://ai-service:8000
+      AI_PROVIDER: demo
+      CORS_ORIGIN: "*"
+      INCIDENT_GROUPING_WINDOW_SECONDS: 30
+      CONFIDENCE_IGNORE_BELOW: 60
+      CONFIDENCE_HIGH_ABOVE: 80
+      SEED_ADMIN_EMAIL: admin@safecity.ai
+      SEED_ADMIN_PASSWORD: admin123
+      SEED_OPERATOR_EMAIL: operator@safecity.ai
+      SEED_OPERATOR_PASSWORD: operator123
+    ports:
+      - "4000:4000"
+    volumes:
+      - backend_uploads:/app/uploads
+
+  dashboard:
+    build:
+      context: ./dashboard
+      args:
+        VITE_API_URL: http://localhost:4000
+        VITE_SOCKET_URL: http://localhost:4000
+    container_name: safecity-dashboard
+    restart: unless-stopped
+    depends_on:
+      - backend
+    ports:
+      - "5173:80"
+
+volumes:
+  mongo_data:
+  backend_uploads:

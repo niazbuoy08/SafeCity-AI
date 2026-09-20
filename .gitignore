@@ -1,0 +1,30 @@
+node_modules/
+dist/
+build/
+.env
+.env.local
+*.log
+.DS_Store
+
+# backend
+backend/uploads/*
+!backend/uploads/.gitkeep
+
+# ai-service
+ai-service/__pycache__/
+ai-service/**/__pycache__/
+ai-service/.venv/
+ai-service/venv/
+
+# dashboard
+dashboard/dist/
+
+# mobile / expo
+mobile/.expo/
+mobile/.expo-shared/
+mobile/npm-debug.*
+mobile/*.jks
+mobile/*.p8
+mobile/*.p12
+mobile/*.key
+mobile/*.mobileprovision

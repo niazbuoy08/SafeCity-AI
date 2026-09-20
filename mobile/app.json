@@ -1,0 +1,36 @@
+{
+  "expo": {
+    "name": "SafeCity Camera",
+    "slug": "safecity-camera",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "dark",
+    "splash": {
+      "backgroundColor": "#0a1128"
+    },
+    "assetBundlePatterns": ["**/*"],
+    "android": {
+      "package": "ai.safecity.camera",
+      "permissions": [
+        "CAMERA",
+        "ACCESS_FINE_LOCATION",
+        "ACCESS_COARSE_LOCATION",
+        "INTERNET"
+      ]
+    },
+    "plugins": [
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "SafeCity Camera needs access to your camera to monitor this location for public safety incidents."
+        }
+      ],
+      [
+        "expo-location",
+        {
+          "locationAlwaysAndWhenInUsePermission": "SafeCity Camera uses your location to tag this camera's position on the city safety map."
+        }
+      ]
+    ]
+  }
+}

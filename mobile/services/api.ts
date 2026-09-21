@@ -64,17 +64,6 @@ export async function sendFrame(config: CameraConfig, payload: FramePayload): Pr
   });
 }
 
-export async function simulateIncident(
-  config: CameraConfig,
-  scenario: "fight" | "accident" | "fire" | "fall"
-): Promise<FrameResponse> {
-  return request<FrameResponse>(`${config.backendUrl}/api/cameras/${config.cameraId}/simulate`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ scenario }),
-  });
-}
-
 export async function checkHealth(backendUrl: string): Promise<boolean> {
   try {
     await request(`${backendUrl}/api/health`, { method: "GET" }, 4000);
@@ -82,4 +71,63 @@ export async function checkHealth(backendUrl: string): Promise<boolean> {
   } catch {
     return false;
   }
+}
+
+// ---- Public Danger Map (operator-verified incidents only) -------------------
+
+export type RiskLevel = "low" | "medium" | "high";
+
+export interface DangerZone {
+  id: string;
+  name: string;
+  latitude: number;
+  longitude: number;
+  incidentCount: number;
+  seriousCount: number;
+  riskLevel: RiskLevel;
+  types: { type: string; count: number }[];
+  lastIncidentAt: string;
+}
+
+export interface HeatPoint {
+  latitude: number;
+  longitude: number;
+  weight: number;
+}
+
+export interface PeakWindow {
+  startHour: number;
+  endHour: number; // exclusive
+  incidents: number;
+  share: number; // 0-1
+}
+
+export interface TimeOfDay {
+  hourly: number[]; // incidents per Dhaka hour, index 0-23
+  total: number;
+  minRequired: number; // below this many incidents no pattern is claimed
+  peak: PeakWindow | null;
+}
+
+export interface DangerZonesResponse {
+  generatedAt: string;
+  days: number;
+  filters: { types: string[]; hours: { from: number; to: number } | null };
+  totalIncidents: number;
+  zones: DangerZone[];
+  heatPoints: HeatPoint[];
+  timeOfDay: TimeOfDay;
+}
+
+export interface DangerQuery {
+  days: number;
+  types: string[]; // empty = all types
+  hours: string | null; // Dhaka-time window "from-to", e.g. "17-22"; null = any time
+}
+
+export async function fetchDangerZones(backendUrl: string, q: DangerQuery): Promise<DangerZonesResponse> {
+  const params = [`days=${q.days}`];
+  if (q.types.length) params.push(`types=${encodeURIComponent(q.types.join(","))}`);
+  if (q.hours) params.push(`hours=${encodeURIComponent(q.hours)}`);
+  return request<DangerZonesResponse>(`${backendUrl}/api/public/danger-zones?${params.join("&")}`, { method: "GET" }, 12000);
 }

@@ -168,3 +168,50 @@ export const SOCKET_EVENTS = {
   RESPONSE_UPDATED: "response:updated",
   ANALYTICS_UPDATED: "analytics:updated",
 } as const;
+
+// ---- Reports (weekly summary for authorities) ----
+
+export interface PeriodStats {
+  detections: number;
+  confirmed: number;
+  falseAlarms: number;
+  pending: number;
+  criticalConfirmed: number;
+  resolved: number;
+  falseAlarmRatePct: number | null;
+}
+
+export interface WeeklyReport {
+  period: { label: string; startKey: string; endKey: string; days: number };
+  previousPeriod: { label: string; startKey: string; endKey: string };
+  generatedAt: string;
+  totals: PeriodStats;
+  previous: PeriodStats;
+  byType: { type: IncidentType; label: string; count: number }[];
+  byDay: { date: string; label: string; detections: number; confirmed: number }[];
+  timeOfDay: {
+    hourly: number[];
+    total: number;
+    minRequired: number;
+    peak: { startHour: number; endHour: number; incidents: number; share: number } | null;
+    peakLabel: string | null;
+  };
+  topAreas: {
+    name: string;
+    incidents: number;
+    serious: number;
+    riskLevel: "low" | "medium" | "high";
+    types: { type: IncidentType; label: string; count: number }[];
+  }[];
+  timings: {
+    avgReviewSec: number | null;
+    reviewN: number;
+    avgResponseSec: number | null;
+    responseN: number;
+    avgResolveSec: number | null;
+    resolveN: number;
+  };
+  responses: { total: number; byAuthority: { authority: string; label: string; count: number }[] };
+  highlights: string[];
+  incidents: { incidentId: string }[];
+}

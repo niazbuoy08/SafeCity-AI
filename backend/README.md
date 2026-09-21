@@ -51,10 +51,27 @@ See `.env.example`. Key ones:
 
 - `POST/GET/PATCH /api/cameras` — camera registry & heartbeat
 - `POST /api/cameras/:id/frame` — frame ingestion (mobile camera → AI → incident)
-- `POST /api/cameras/:id/simulate` — Demo Mode incident simulation
+- `POST /api/cameras/:id/simulate` — incident simulation for testing/demos (API only; not in the mobile app)
 - `GET/POST/PATCH /api/incidents` — incident list, detail, verify, status, dispatch
 - `GET/POST/PATCH /api/responses` — response team dispatch tracking
 - `GET /api/analytics/*` — summary, incident breakdowns, hotspots
+- `GET /api/public/danger-zones?days=30&types=fire_smoke,road_accident&hours=17-22`
+  — **unauthenticated**, feeds the mobile app's Danger Map. Returns only
+  operator-verified incidents, clustered into zones (750 m radius) plus
+  severity-weighted heat points, and a `timeOfDay` block (hourly counts and a
+  peak window — only when ≥ 5 incidents support it). `types` filters incident
+  types; `hours` is a Dhaka-time window that wraps midnight (`22-5`). Never
+  exposes camera IDs, incident IDs, or evidence frames
+- `GET /api/reports/weekly?end=YYYY-MM-DD` — **login required**. Weekly summary
+  (7 days ending on `end`, Dhaka time) with previous-week comparison and
+  auto-written key observations
+- `GET /api/reports/weekly.pdf?end=YYYY-MM-DD` — the same summary as an A4 PDF
+  for authorities (KPIs, charts, top areas, response times, verified incident
+  log). Bengali place names render via the bundled Hind Siliguri font
+  (`assets/fonts`, SIL OFL)
+- `GET /api/reports/incidents.csv?from=&to=&status=&type=` — CSV export
+  (UTF-8 with BOM so Excel shows Bengali; text cells that could run as
+  spreadsheet formulas are neutralised)
 
 ## Architecture note
 

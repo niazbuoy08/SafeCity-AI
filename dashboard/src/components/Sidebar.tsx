@@ -1,5 +1,6 @@
 import { NavLink } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import { Logo } from "./Logo";
 
 const NAV_ITEMS = [
   { to: "/", label: "Dashboard", icon: "◧" },
@@ -8,6 +9,7 @@ const NAV_ITEMS = [
   { to: "/map", label: "Map", icon: "◎" },
   { to: "/responses", label: "Response Teams", icon: "▣" },
   { to: "/analytics", label: "Analytics", icon: "▤" },
+  { to: "/reports", label: "Reports", icon: "▥" },
   { to: "/settings", label: "Settings", icon: "⚙" },
 ];
 
@@ -18,7 +20,7 @@ export function Sidebar() {
     <aside className="w-64 shrink-0 bg-navy-950 text-white flex flex-col h-screen sticky top-0">
       <div className="px-5 py-6 border-b border-white/10">
         <div className="flex items-center gap-2">
-          <div className="h-9 w-9 rounded-lg bg-blue-500 flex items-center justify-center font-bold text-lg">S</div>
+          <Logo className="h-10 w-10 shrink-0" />
           <div>
             <div className="font-bold text-white leading-tight">SafeCity AI</div>
             <div className="text-[11px] text-blue-300 leading-tight">Turning Cameras into Care</div>

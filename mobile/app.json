@@ -14,7 +14,7 @@
     ],
     "android": {
       "package": "ai.safecity.camera",
-      "versionCode": 2,
+      "versionCode": 6,
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#0a1128"
@@ -41,6 +41,14 @@
         "expo-location",
         {
           "locationAlwaysAndWhenInUsePermission": "SafeCity Camera uses your location to tag this camera's position on the city safety map."
+        }
+      ],
+      [
+        "expo-build-properties",
+        {
+          "android": {
+            "usesCleartextTraffic": true
+          }
         }
       ]
     ],

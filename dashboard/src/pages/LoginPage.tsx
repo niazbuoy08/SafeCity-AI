@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Navigate, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import { Logo } from "../components/Logo";
 
 export default function LoginPage() {
   const { login, token } = useAuth();
@@ -30,9 +31,7 @@ export default function LoginPage() {
     <div className="min-h-screen flex items-center justify-center bg-navy-950 px-4">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
-          <div className="mx-auto h-14 w-14 rounded-xl bg-blue-500 flex items-center justify-center font-bold text-2xl text-white">
-            S
-          </div>
+          <Logo className="mx-auto h-20 w-20" />
           <h1 className="mt-4 text-2xl font-bold text-white">SafeCity AI</h1>
           <p className="text-blue-300 text-sm mt-1">Turning Cameras into Care</p>
         </div>

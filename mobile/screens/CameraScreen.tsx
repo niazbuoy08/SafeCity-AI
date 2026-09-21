@@ -6,8 +6,7 @@ import * as Location from "expo-location";
 import { StatusBar } from "expo-status-bar";
 import { useCameraConfig } from "../context/CameraConfigContext";
 import { StatusPill } from "../components/StatusPill";
-import { DemoModePanel, Scenario } from "../components/DemoModePanel";
-import { registerCamera, sendFrame, simulateIncident } from "../services/api";
+import { registerCamera, sendFrame } from "../services/api";
 
 let frameCounter = 0;
 
@@ -143,16 +142,6 @@ export default function CameraScreen({ onOpenSettings }: { onOpenSettings: () =>
     return () => clearInterval(id);
   }, [monitoring, captureAndSendFrame, config.detectionIntervalMs]);
 
-  async function handleSimulate(scenario: Scenario) {
-    const response = await simulateIncident(config, scenario);
-    setConnected(true);
-    if (response.detection) {
-      setLastDetection(
-        `${response.detection.incident_type.replace("_", " ")} (${Math.round(response.detection.confidence * 100)}%) [DEMO]`
-      );
-    }
-  }
-
   if (!permission) {
     return <View style={styles.center}><Text style={styles.permText}>Loading camera permissions...</Text></View>;
   }
@@ -169,7 +158,7 @@ export default function CameraScreen({ onOpenSettings }: { onOpenSettings: () =>
   }
 
   return (
-    <SafeAreaView style={styles.root}>
+    <SafeAreaView style={styles.root} edges={["top", "left", "right"]}>
       <StatusBar style="light" />
       <ScrollView contentContainerStyle={styles.scroll}>
         <View style={styles.cameraWrap}>
@@ -233,7 +222,6 @@ export default function CameraScreen({ onOpenSettings }: { onOpenSettings: () =>
           )}
         </View>
 
-        <DemoModePanel onTrigger={handleSimulate} />
       </ScrollView>
     </SafeAreaView>
   );

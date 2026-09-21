@@ -43,20 +43,45 @@ editable here and persist across app restarts (AsyncStorage).
 - Status indicators for Connected / Connection Lost (with automatic retry on
   the next capture cycle), frame sending, and AI monitoring active
 
-## Demo Mode
+## Danger Map (for everyday users)
 
-A clearly separated, red-accented **Demo Scenario** panel provides:
+The second tab, **Danger Map**, is aimed at people who just want to know
+which areas to be careful in:
 
-- Simulate Fight
-- Simulate Accident
-- Simulate Fire
-- Simulate Person Fall
+- **Heatmap** — density of incidents, weighted by severity (one red hue,
+  light → dark = lower → higher risk), on an OpenStreetMap base map. It is a
+  Leaflet page inside a WebView, so it needs no Google Maps API key and works
+  in the installed APK.
+- **Numbered zone markers** — tap one for its name and incident count.
+- **Nearby warning** — if location is allowed, a banner tells you the nearest
+  danger zone within 2 km ("Mohammadpur is 600 m from you — high risk…").
+- **Danger Board** — zones ranked by volume with incident types, how recent,
+  distance from you, and a risk chip. Tap a row to fly the map to it; pull down
+  to refresh. 7 / 30 / 90-day chips change the window.
+- **Filters** — narrow the map and board by incident type (fight / accident /
+  fire / fall, multi-select) and by time of day (morning 5–12, afternoon 12–5,
+  evening 5–10, night 10–5, Dhaka time).
+- **Time-of-day insight** — a 24-hour chart and a plain sentence such as
+  "Higher risk 6–10 PM · 70% of verified incidents". It is only stated when
+  there are at least 5 verified incidents *and* the busiest 4-hour stretch holds
+  clearly more than an even spread would; otherwise the app says there isn't
+  enough data or no clear pattern rather than inventing one. A red "Higher-risk
+  time now" pill appears while it is currently inside that window.
+- **Safer route hint** — tap **🧭 Safer route**, tap your destination on the map,
+  and the app checks whether a direct path passes near danger zones. If so it
+  proposes a detour (up to 3 waypoints) and opens it in Google Maps for
+  turn-by-turn directions (walk or drive). It is computed on the phone from the
+  zones already downloaded, so your destination is never sent to our server and
+  no routing service or API key is needed. It is a *hint*: it uses the straight
+  line between you and the destination, real roads differ, and when no detour
+  helps it says so. It respects the active filters (e.g. "Evening").
 
-These call `POST /api/cameras/:id/simulate`, which goes through the real
-backend → AI service → incident-grouping → Socket.IO pipeline — the *only*
-thing that's simulated is the detection result itself, guaranteeing the full
-demo works even if the live camera doesn't happen to catch a real event at
-presentation time.
+**Only operator-verified incidents appear.** Unreviewed AI detections and
+false alarms never reach this screen — the public endpoint
+(`GET /api/public/danger-zones`) filters them out and also omits camera IDs,
+incident IDs, and evidence frames. So the map is empty until an operator
+clicks **Confirm Incident** in the dashboard. Requires internet (map tiles and
+Leaflet load from CDNs).
 
 ## Default demo camera
 
@@ -90,3 +115,9 @@ Notes:
   set in its Settings screen — that doesn't change with a standalone build.
 - If you change `app.json`'s `android.package`, icon, or permissions later,
   just re-run the build command — no other setup needed.
+- **Plain `http://` backends:** Android 9+ blocks cleartext HTTP in release
+  builds unless the app opts in. `app.json` enables it
+  (`expo-build-properties` → `usesCleartextTraffic: true`) so the APK can talk
+  to a LAN backend like `http://192.168.x.x:4000`. That is a prototype
+  convenience — for a real deployment serve the backend over HTTPS and remove
+  it.

@@ -20,5 +20,5 @@ class DetectionProvider(ABC):
 
     @abstractmethod
     def simulate(self, scenario: str, camera_id: str) -> DetectionResult:
-        """Produce a realistic detection for a Demo Mode button press, with no frame required."""
+        """Produce a realistic detection for a simulate-endpoint request, with no frame required."""
         raise NotImplementedError

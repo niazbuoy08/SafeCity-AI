@@ -31,12 +31,18 @@ Log in with a seeded account (created by `backend/npm run seed`):
 - **Response Teams** — team roster + dispatch history
 - **Analytics** — incidents by type/location/hour/day, verified vs. false
   alarm, average verification/response time, hotspots, camera activity
+- **Reports** — weekly summary for authorities (browse week by week, compare
+  with the previous 7 days) with **Download PDF** and **Download CSV**, plus a
+  filtered CSV export by date range, status and incident type. Only
+  operator-verified incidents are analysed; false alarms are counted but never
+  treated as incidents, and time-of-day patterns are only claimed with enough
+  data
 - **Settings** — account info, per-camera AI monitoring toggle, threshold docs
 
 ## Real-time behavior
 
 Connects to the backend's Socket.IO server on load. When the AI service
-detects (or Demo Mode simulates) an incident, a toast alert appears
+detects (or the simulate endpoint creates) an incident, a toast alert appears
 instantly with camera, location, confidence, and severity, and every open
 page listening for that event re-fetches its data — no manual refresh needed.
 

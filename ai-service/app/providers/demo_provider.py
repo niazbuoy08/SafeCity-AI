@@ -9,9 +9,9 @@ presentation time, or a "real" CV/ML provider is unavailable.
   just enough to occasionally raise a low-confidence "potential incident"
   from ordinary camera frames, but overwhelmingly reports "normal" — this
   keeps the live-monitoring UI honest and non-spammy.
-- simulate(): the "Demo Scenario" button on the mobile app calls this via
-  the backend. It returns a high-confidence, realistic detection for the
-  requested scenario every time, so the operator dashboard workflow (alert,
+- simulate(): called by the backend's /api/cameras/:id/simulate endpoint. It
+  returns a high-confidence, realistic detection for the requested scenario
+  every time, so the operator dashboard workflow (alert,
   verify, dispatch, analytics) can be reliably shown end-to-end.
 """
 

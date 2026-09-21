@@ -13,11 +13,23 @@ import {
   Line,
   CartesianGrid,
 } from "recharts";
+import { MapContainer, TileLayer } from "react-leaflet";
+import "leaflet/dist/leaflet.css";
 import { api } from "../api/client";
 import { StatCard } from "../components/StatCard";
-import { INCIDENT_LABELS, Hotspot } from "../types";
+import { HeatmapLayer, HeatPoint } from "../components/HeatmapLayer";
+import { INCIDENT_LABELS, Hotspot, Incident, Severity } from "../types";
 
 const COLORS = ["#1e3a6b", "#2a4d8a", "#d97706", "#dc2626", "#16a34a", "#94a3b8"];
+
+const SEVERITY_WEIGHT: Record<Severity, number> = {
+  low: 0.2,
+  medium: 0.45,
+  high: 0.7,
+  critical: 1.0,
+};
+
+const DHAKA_CENTER: [number, number] = [23.7808, 90.3795];
 
 interface CameraActivity {
   cameraId: string;
@@ -31,17 +43,28 @@ export default function Analytics() {
   const [data, setData] = useState<any>(null);
   const [hotspots, setHotspots] = useState<Hotspot[]>([]);
   const [cameraActivity, setCameraActivity] = useState<CameraActivity[]>([]);
+  const [heatPoints, setHeatPoints] = useState<HeatPoint[]>([]);
 
   useEffect(() => {
     async function load() {
-      const [a, h, c] = await Promise.all([
+      const [a, h, c, i] = await Promise.all([
         api.get("/analytics/incidents"),
         api.get("/analytics/hotspots"),
         api.get("/analytics/cameras"),
+        api.get("/incidents?limit=500"),
       ]);
       setData(a.data);
       setHotspots(h.data);
       setCameraActivity(c.data);
+      setHeatPoints(
+        (i.data as Incident[])
+          .filter((inc) => inc.status !== "false_alarm")
+          .map((inc) => ({
+            latitude: inc.latitude,
+            longitude: inc.longitude,
+            weight: SEVERITY_WEIGHT[inc.severity],
+          }))
+      );
     }
     load();
   }, []);
@@ -142,30 +165,72 @@ export default function Analytics() {
           </ResponsiveContainer>
         </ChartCard>
 
-        <ChartCard title="High Risk Areas (Hotspots)">
-          <div className="divide-y divide-slate-100">
-            {hotspots.slice(0, 6).map((h) => (
-              <div key={h.location} className="flex items-center justify-between py-2 text-sm">
-                <div>
-                  <div className="font-medium text-navy-900">{h.location}</div>
-                  <div className="text-xs text-slate-400">{h.types.map((t) => INCIDENT_LABELS[t as keyof typeof INCIDENT_LABELS] || t).join(", ")}</div>
-                </div>
-                <span
-                  className={`text-xs font-semibold px-2 py-0.5 rounded-full ${
-                    h.riskLevel === "high"
-                      ? "bg-red-100 text-red-700"
-                      : h.riskLevel === "medium"
-                      ? "bg-amber-100 text-amber-700"
-                      : "bg-green-100 text-green-700"
-                  }`}
-                >
-                  {h.incidentCount} incidents
-                </span>
-              </div>
-            ))}
-            {hotspots.length === 0 && <div className="text-sm text-slate-400 py-4">No hotspot data yet.</div>}
+      </div>
+
+      <div>
+        <div className="flex items-baseline justify-between mb-2">
+          <h2 className="text-sm font-semibold text-slate-700">Danger Heatmap</h2>
+          <span className="text-xs text-slate-400">
+            Density of verified/unresolved incidents, weighted by severity — darker red = higher risk
+          </span>
+        </div>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+          <div className="lg:col-span-2 rounded-xl overflow-hidden border border-slate-200" style={{ height: 420 }}>
+            <MapContainer center={DHAKA_CENTER} zoom={12} style={{ height: "100%", width: "100%" }}>
+              <TileLayer
+                attribution="&copy; OpenStreetMap contributors"
+                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+              />
+              <HeatmapLayer points={heatPoints} />
+            </MapContainer>
           </div>
-        </ChartCard>
+
+          <div className="bg-white rounded-xl border border-slate-200 overflow-hidden flex flex-col">
+            <div className="px-4 py-3 border-b border-slate-100">
+              <h3 className="text-sm font-semibold text-slate-700">Danger Board</h3>
+              <p className="text-xs text-slate-400">Ranked by incident volume</p>
+            </div>
+            <div className="divide-y divide-slate-100 overflow-y-auto" style={{ maxHeight: 372 }}>
+              {[...hotspots]
+                .sort((a, b) => b.incidentCount - a.incidentCount)
+                .map((h, i) => (
+                  <div key={h.location} className="flex items-center gap-3 px-4 py-2.5">
+                    <span
+                      className={`h-6 w-6 shrink-0 rounded-full flex items-center justify-center text-xs font-bold ${
+                        i === 0
+                          ? "bg-red-600 text-white"
+                          : i === 1
+                          ? "bg-orange-500 text-white"
+                          : i === 2
+                          ? "bg-amber-500 text-white"
+                          : "bg-slate-100 text-slate-500"
+                      }`}
+                    >
+                      {i + 1}
+                    </span>
+                    <div className="min-w-0 flex-1">
+                      <div className="text-sm font-medium text-navy-900 truncate">{h.location}</div>
+                      <div className="text-xs text-slate-400 truncate">
+                        {h.types.map((t) => INCIDENT_LABELS[t as keyof typeof INCIDENT_LABELS] || t).join(", ")}
+                      </div>
+                    </div>
+                    <span
+                      className={`shrink-0 text-xs font-semibold px-2 py-0.5 rounded-full ${
+                        h.riskLevel === "high"
+                          ? "bg-red-100 text-red-700"
+                          : h.riskLevel === "medium"
+                          ? "bg-amber-100 text-amber-700"
+                          : "bg-green-100 text-green-700"
+                      }`}
+                    >
+                      {h.incidentCount}
+                    </span>
+                  </div>
+                ))}
+              {hotspots.length === 0 && <div className="text-sm text-slate-400 py-6 px-4">No hotspot data yet.</div>}
+            </div>
+          </div>
+        </div>
       </div>
 
       <div className="bg-white rounded-xl border border-slate-200 p-4">

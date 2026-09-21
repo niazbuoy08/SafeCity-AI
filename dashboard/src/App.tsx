@@ -13,6 +13,7 @@ import IncidentDetail from "./pages/IncidentDetail";
 import MapPage from "./pages/MapPage";
 import ResponseTeamsPage from "./pages/ResponseTeamsPage";
 import Analytics from "./pages/Analytics";
+import Reports from "./pages/Reports";
 import Settings from "./pages/Settings";
 
 function ProtectedLayout({ children }: { children: React.ReactNode }) {
@@ -43,6 +44,7 @@ export default function App() {
             <Route path="/map" element={<ProtectedLayout><MapPage /></ProtectedLayout>} />
             <Route path="/responses" element={<ProtectedLayout><ResponseTeamsPage /></ProtectedLayout>} />
             <Route path="/analytics" element={<ProtectedLayout><Analytics /></ProtectedLayout>} />
+            <Route path="/reports" element={<ProtectedLayout><Reports /></ProtectedLayout>} />
             <Route path="/settings" element={<ProtectedLayout><Settings /></ProtectedLayout>} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>

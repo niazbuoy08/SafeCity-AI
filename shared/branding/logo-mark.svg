@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="SafeCity AI">
+  <defs>
+    <linearGradient id="sc-shield" x1="0.15" y1="0" x2="0.85" y2="1">
+      <stop offset="0" stop-color="#5b9cff"/>
+      <stop offset="0.55" stop-color="#2a5bd7"/>
+      <stop offset="1" stop-color="#1b3a9e"/>
+    </linearGradient>
+  </defs>
+
+  <!-- shield: safety -->
+  <path d="M256 28 L440 84 V250 C440 372 360 456 256 492 C152 456 72 372 72 250 V84 Z"
+        fill="url(#sc-shield)" stroke="url(#sc-shield)" stroke-width="16" stroke-linejoin="round"/>
+  <path d="M256 28 L440 84 V250 C440 372 360 456 256 492 C152 456 72 372 72 250 V84 Z"
+        transform="translate(256 260) scale(0.9) translate(-256 -260)"
+        fill="none" stroke="#ffffff" stroke-opacity="0.28" stroke-width="6" stroke-linejoin="round"/>
+
+  <!-- camera lens: cameras -->
+  <circle cx="256" cy="236" r="104" fill="#0a1128"/>
+  <circle cx="256" cy="236" r="104" fill="none" stroke="#ffffff" stroke-width="24"/>
+  <circle cx="256" cy="236" r="66" fill="none" stroke="#3b82f6" stroke-width="6" opacity="0.9"/>
+
+  <!-- heart pupil: care -->
+  <path transform="translate(256 240)" fill="#ffffff"
+        d="M0 26 C-8 18 -34 0 -34 -16 C-34 -30 -22 -38 -12 -38 C-6 -38 -2 -34 0 -30 C2 -34 6 -38 12 -38 C22 -38 34 -30 34 -16 C34 0 8 18 0 26 Z"/>
+</svg>

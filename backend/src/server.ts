@@ -12,6 +12,8 @@ import cameraRoutes from "./routes/cameras";
 import incidentRoutes from "./routes/incidents";
 import responseRoutes from "./routes/responses";
 import analyticsRoutes from "./routes/analytics";
+import publicRoutes from "./routes/public";
+import reportRoutes from "./routes/reports";
 import { Camera } from "./models";
 import { getIO } from "./sockets/io";
 import { SOCKET_EVENTS } from "./types";
@@ -32,6 +34,8 @@ async function main() {
   app.use("/api/incidents", incidentRoutes);
   app.use("/api/responses", responseRoutes);
   app.use("/api/analytics", analyticsRoutes);
+  app.use("/api/public", publicRoutes);
+  app.use("/api/reports", reportRoutes);
 
   app.use((req, res) => res.status(404).json({ error: `Not found: ${req.method} ${req.path}` }));
 

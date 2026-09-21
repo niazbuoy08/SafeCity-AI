@@ -27,7 +27,12 @@ Two user-facing applications, one connected ecosystem:
    same endpoint without any backend changes.
 2. **SafeCity AI Control Room** (`/dashboard`) — a React/Vite/Tailwind admin
    dashboard where operators watch cameras, receive real-time incident
-   alerts, verify incidents, dispatch response teams, and review analytics.
+   alerts, verify incidents, dispatch response teams, review analytics, and
+   export a weekly PDF / CSV summary for authorities (Reports).
+
+The mobile app also has a public-facing **Danger Map** (heatmap of
+operator-verified incidents, filters by incident type and time of day, a
+time-of-day risk insight, and a "safer route" hint) — see `mobile/README.md`.
 
 Both are backed by:
 
@@ -209,29 +214,29 @@ docker compose exec backend npm run seed
 The mobile app still runs via Expo on your machine/phone (Expo apps aren't
 containerized) — point its Backend URL at your machine's LAN IP on port 4000.
 
-## 7. Using Demo Mode
+## 7. Simulating incidents (API only)
 
 Live AI detection is intentionally conservative (it mostly reports "normal"
-to avoid alert fatigue) and — since this is a prototype without a trained
-deep-learning model — isn't guaranteed to recognize a staged fight or fall on
-camera during a live demo. **Demo Mode** exists to make the full workflow
-reliably demonstrable regardless:
+to avoid alert fatigue), so a staged event in front of the camera isn't
+guaranteed to be recognized. The **mobile app no longer has Demo Scenario
+buttons** — it is meant for real use. The backend still exposes a simulation
+endpoint for testing and presentations:
 
-1. In the SafeCity Camera app, scroll to the red **Demo Scenario** panel.
-2. Tap **Simulate Fight** / **Simulate Accident** / **Simulate Fire** /
-   **Simulate Person Fall**.
-3. This calls the real backend (`POST /api/cameras/:id/simulate`), which asks
-   the AI service for a realistic high-confidence detection for that
-   scenario, then runs it through the *exact same* incident-creation,
-   grouping, and Socket.IO pipeline as a live detection would.
-4. The incident appears on the dashboard exactly as a real detection would —
-   nothing about the verification/response/analytics flow is faked.
+```bash
+curl -X POST http://localhost:4000/api/cameras/CAM-124/simulate   -H "Content-Type: application/json" -d '{"scenario":"fight"}'
+# scenario: fight | accident | fire | fall
+```
+
+It asks the AI service for a realistic high-confidence detection, then runs
+it through the *exact same* incident-creation, grouping, and Socket.IO
+pipeline as a live detection — so the dashboard flow is genuine. Note this
+endpoint is unauthenticated; remove or protect it before any real deployment.
 
 Switching `AI_PROVIDER` in `ai-service/.env` between `real` (OpenCV
 heuristics) and `gemini` (Google Gemini vision model, genuine scene
 understanding — requires `GEMINI_API_KEY`) changes how *live* frames are
-analyzed — see `ai-service/README.md`. Demo Mode behaves identically across
-all three providers.
+analyzed — see `ai-service/README.md`. The simulation endpoint behaves
+identically across all three providers.
 
 ## 8. Running the full demonstration
 
@@ -245,7 +250,7 @@ all three providers.
 4. Open the admin dashboard (already logged in) on the **Dashboard** page —
    you'll see Camera 124 come online on the map and in the stats.
 5. Trigger an incident: act out a scenario in front of the camera, or (for a
-   guaranteed result) tap **Simulate Fight** in Demo Mode.
+   guaranteed result) call the `/simulate` endpoint shown in section 7.
 6. Within moments, a **NEW INCIDENT** toast appears on the dashboard with
    type, camera, location, time, confidence, and severity.
 7. Click the toast (or the incident in the list) to open **Incident Detail**
@@ -278,7 +283,7 @@ all three providers.
 Re-run the seed script any time to reset demo data (it clears and
 re-populates the relevant collections). Seeded incidents/responses are
 identifiable by their `INC-SEED-*` / `RSP-SEED-*` IDs — anything created
-through live detection, Demo Mode, or the dashboard has a timestamp-based ID
+through live detection, the simulate endpoint, or the dashboard has a timestamp-based ID
 instead (e.g. `INC-MU9MEQSS-eede`).
 
 If you'd rather start with an empty incident/response history and only see

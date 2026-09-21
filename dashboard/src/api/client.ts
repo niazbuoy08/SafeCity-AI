@@ -35,3 +35,23 @@ export function frameUrl(path: string | null | undefined): string | null {
   if (path.startsWith("http")) return path;
   return `${MEDIA_URL}${path}`;
 }
+
+/**
+ * Download a file from an authenticated endpoint. A plain <a href> can't send
+ * the login token, so fetch the bytes with axios and hand them to the browser.
+ */
+export async function downloadFile(
+  path: string,
+  params: Record<string, string | undefined>,
+  filename: string
+): Promise<void> {
+  const res = await api.get(path, { params, responseType: "blob" });
+  const url = URL.createObjectURL(res.data as Blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+}

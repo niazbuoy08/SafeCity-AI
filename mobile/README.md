@@ -62,3 +62,31 @@ presentation time.
 
 Camera ID `CAM-124`, name "Camera 124", location "Mohammadpur, Dhaka" — matches
 the seeded backend camera used in the main demo script.
+
+## Building a real, installable APK (not just Expo Go)
+
+Running via `npx expo start` + Expo Go is a live dev preview — it needs
+Metro running on your PC the whole time. To get an actual app icon on your
+phone's home screen that runs standalone, build it with **EAS Build**
+(Expo's free cloud build service — no local Android SDK/Studio required):
+
+```bash
+cd mobile
+npx eas-cli login          # create a free account at expo.dev if you don't have one
+npx eas-cli build --platform android --profile preview
+```
+
+The first run will ask to link this project to your Expo account (creates a
+free `projectId` in `app.json` under `extra.eas`) — accept the defaults.
+The build runs in Expo's cloud (several minutes, queue-dependent); when done
+it prints a URL and QR code. Open that URL on your phone (or scan the QR)
+and tap through to install the APK directly — no Play Store needed.
+
+Notes:
+- `preview` profile (`eas.json`) builds a plain installable `.apk`. The
+  `production` profile builds an `.aab` (Play Store submission format) and
+  auto-increments the version — use that only if actually publishing.
+- The app still needs your backend reachable at whatever **Backend URL** you
+  set in its Settings screen — that doesn't change with a standalone build.
+- If you change `app.json`'s `android.package`, icon, or permissions later,
+  just re-run the build command — no other setup needed.

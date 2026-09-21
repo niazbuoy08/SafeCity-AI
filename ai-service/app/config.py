@@ -21,7 +21,14 @@ class Settings(BaseSettings):
     confidence_high_above: float = 80.0  # percent
 
     gemini_api_key: str = ""
-    gemini_model: str = "gemini-2.5-flash"
+    # Free-tier Gemini API keys have a small PER-DAY (not per-minute) request
+    # quota that is tracked separately per model (e.g. 20/day for
+    # gemini-2.5-flash at time of writing). If detections start failing with
+    # "RESOURCE_EXHAUSTED" / 429 errors that persist regardless of how slowly
+    # you send frames, the daily quota for this model is exhausted — either
+    # wait for it to reset, switch to a different model here, or enable
+    # billing on the Google Cloud project for a much higher quota.
+    gemini_model: str = "gemini-3.1-flash-lite"
 
     port: int = 8000
 

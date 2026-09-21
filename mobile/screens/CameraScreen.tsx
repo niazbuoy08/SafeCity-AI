@@ -55,7 +55,12 @@ export default function CameraScreen({ onOpenSettings }: { onOpenSettings: () =>
         });
         if (addr) {
           const streetLabel = [addr.streetNumber, addr.street].filter(Boolean).join(" ") || null;
-          const area = streetLabel || addr.name || addr.subregion || addr.district;
+          // Android's geocoder falls back to a Google Plus Code (e.g. "RC6G+94P")
+          // in the "name" field when it can't resolve a real place/street name
+          // for a location — that's not human-readable, so skip it if seen.
+          const isPlusCode = (v: string | null) => !!v && /^[23456789CFGHJMPQRVWX]{4,8}\+[23456789CFGHJMPQRVWX]{2,3}$/i.test(v);
+          const name = isPlusCode(addr.name) ? null : addr.name;
+          const area = streetLabel || name || addr.subregion || addr.district;
           const city = addr.city || addr.region;
           const label = [area, city].filter(Boolean).join(", ") || null;
           resolvedLocationRef.current = label;
